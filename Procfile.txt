@@ -1,0 +1,2 @@
+NEW_FILE_CODE
+web: gunicorn learning_log.wsgi:application --log-file -

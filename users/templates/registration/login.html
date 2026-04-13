@@ -1,0 +1,21 @@
+{% extends "learning_logs/base.html" %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-md-6 offset-md-3">
+    <h2>Log in to your account</h2>
+    
+    <form method="post" action="{% url 'users:login' %}">
+      {% csrf_token %}
+      
+      <table class="table table-borderless">
+        {{ form.as_table }}
+      </table>
+      
+      <button class="btn btn-primary btn-lg" type="submit">Log in</button>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}
