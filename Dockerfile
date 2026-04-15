@@ -17,11 +17,18 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 复制项目文件
 COPY . /app/
 
-# 收集静态文件
-RUN python manage.py collectstatic --noinput
+# 创建静态文件目录
+RUN mkdir -p staticfiles
+
+# 给entrypoint脚本添加执行权限
+RUN chmod +x /app/entrypoint.sh
+
+# 指定端口（Railway提供的端口）
+ENV PORT=8000
+ENV HOST=0.0.0.0
 
 # 暴露端口
-EXPOSE 8000
+EXPOSE $PORT
 
-# 启动命令
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "learning_log.wsgi:application"]
+# 使用entrypoint脚本
+ENTRYPOINT ["/app/entrypoint.sh"]

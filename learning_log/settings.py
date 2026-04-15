@@ -34,6 +34,8 @@ ALLOWED_HOSTS = [
     '.render.com',   # 如果使用Render
     os.environ.get('SERVER_IP', '*'),
     os.environ.get('DOMAIN_NAME', '*'),
+    # 添加PythonAnywhere的域名格式
+    '.pythonanywhere.com',
 ]
 
 
@@ -144,8 +146,12 @@ MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 # Additional locations of static files
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    BASE_DIR / 'static',  # 如果有额外的静态文件目录
 ]
+
+# PythonAnywhere需要的配置
+if 'pythonanywhere' in os.environ.get('SERVER_SOFTWARE', ''):
+    STATIC_ROOT = '/home/你的用户名/mysite/static'
 
 
 # Media files (User uploads)
