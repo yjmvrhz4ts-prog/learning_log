@@ -60,6 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise中间件应在安全中间件之后
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -94,14 +95,22 @@ WSGI_APPLICATION = 'learning_log.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-import dj_database_url
-
-# Production database settings
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}')
-    )
-}
+try:
+    import dj_database_url
+    # Production database settings
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}')
+        )
+    }
+except ImportError:
+    # 如果dj_database_url不可用，则使用sqlite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -141,13 +150,13 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# WhiteNoise配置用于静态文件服务（生产环境必需）
-MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-
 # Additional locations of static files
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # 如果有额外的静态文件目录
-]
+# 仅在目录存在时才添加到STATICFILES_DIRS
+STATICFILES_DIR_TEMP = BASE_DIR / 'static'
+if STATICFILES_DIR_TEMP.exists():
+    STATICFILES_DIRS = [
+        STATICFILES_DIR_TEMP,
+    ]
 
 # PythonAnywhere需要的配置
 if 'pythonanywhere' in os.environ.get('SERVER_SOFTWARE', ''):
